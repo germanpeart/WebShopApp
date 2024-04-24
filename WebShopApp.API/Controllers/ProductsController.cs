@@ -1,14 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using WebShopApp.BLL.Interfaces;
 using WebShopApp.DAL.DTOs;
+using WebShopApp.Utilities.Helpers;
 
 namespace WebShopApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IProductService productService) : ControllerBase
+    public class ProductsController(IProductService productService, IMemoryCache memoryCache) : ControllerBase
     {
         private readonly IProductService _productService = productService;
+        private readonly IMemoryCache _memoryCache = memoryCache;
 
         // GET: api/Products
         [HttpGet]
@@ -16,12 +19,21 @@ namespace WebShopApp.API.Controllers
         {
             try
             {
-                var products = await _productService.GetAll();
+                if (_memoryCache.TryGetValue("allProducts", out IEnumerable<ProductDto>? products))
+                    return Ok(products);
+
+                products = await _productService.GetAll();
+
+                if (products is null)
+                    return NotFound("No products found");
+
+                _memoryCache.Set("allProducts", products, TimeSpan.FromMinutes(10));
+
                 return Ok(products);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
             }
         }
 
@@ -32,15 +44,15 @@ namespace WebShopApp.API.Controllers
             try
             {
                 var product = await _productService.GetById(id);
-                if (product == null)
-                {
+
+                if (product is null)
                     return NotFound();
-                }
+
                 return Ok(product);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
             }
         }
 
@@ -50,20 +62,19 @@ namespace WebShopApp.API.Controllers
         {
             try
             {
-                if (productDto == null)
-                {
+                if (productDto is null)
                     return BadRequest("Product object is null");
-                }
+
                 if (!ModelState.IsValid)
-                {
                     return BadRequest("Invalid model object");
-                }
+
                 var product = await _productService.Add(productDto);
+                _memoryCache.Remove("allProducts");
                 return Ok(product);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
             }
         }
 
@@ -73,20 +84,19 @@ namespace WebShopApp.API.Controllers
         {
             try
             {
-                if (productDto == null)
-                {
+                if (productDto is null)
                     return BadRequest("Product object is null");
-                }
+
                 if (!ModelState.IsValid)
-                {
                     return BadRequest("Invalid model object");
-                }
+
                 await _productService.Update(productDto);
+                _memoryCache.Remove("allProducts");
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
             }
         }
 
@@ -97,11 +107,12 @@ namespace WebShopApp.API.Controllers
             try
             {
                 await _productService.Delete(id);
+                _memoryCache.Remove("allProducts");
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
             }
         }
     }
