@@ -33,7 +33,7 @@ namespace WebShopApp.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
+                return StatusCode(500, $"Internal server error: {ex.GetInnerMessage()}");
             }
         }
 
@@ -52,7 +52,7 @@ namespace WebShopApp.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
+                return StatusCode(500, $"Internal server error: {ex.GetInnerMessage()}");
             }
         }
 
@@ -74,7 +74,7 @@ namespace WebShopApp.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
+                return StatusCode(500, $"Internal server error: {ex.GetInnerMessage()}");
             }
         }
 
@@ -96,7 +96,7 @@ namespace WebShopApp.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
+                return StatusCode(500, $"Internal server error: {ex.GetInnerMessage()}");
             }
         }
 
@@ -112,7 +112,7 @@ namespace WebShopApp.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ExceptionHelper.GetInnerMessage(ex)}");
+                return StatusCode(500, $"Internal server error: {ex.GetInnerMessage()}");
             }
         }
     }

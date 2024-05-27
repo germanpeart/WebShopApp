@@ -2,7 +2,7 @@
 {
     public static class ExceptionHelper
     {
-        public static string GetInnerMessage(Exception exception)
+        public static string GetInnerMessage(this Exception exception)
         {
             var innerException = exception.InnerException;
 
