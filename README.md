@@ -85,7 +85,6 @@ The Data Access Layer manages the database interactions.
 ## Getting Started
 
 ### Prerequisites
-
 - .NET 8
 - SQL Server
 
